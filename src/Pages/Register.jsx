@@ -15,10 +15,15 @@ function Register() {
 
 
   const handleRegister = async () => {
+    console.log("register request sent")
     try {
+      console.log(username,"username")
+      console.log(password,"password")
+      console.log(email,"email")
       const res = await axios.post(URL + "/api/auth/register",{
         username,email,password})
         setUsername(res.data.username)
+        console.log(res,"res")
         setemail(res.data.email)
         setpassword(res.data.password)
         seterror(false)
@@ -78,7 +83,7 @@ function Register() {
             <div className='flex justify-center items-center space-x-3'>
 
               <p>
-                Already Have AN Account?
+                Already Have an Account?
               </p>
 
               <p className='text-gray-500 hover:text-black'>

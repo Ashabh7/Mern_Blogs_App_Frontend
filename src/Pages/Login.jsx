@@ -8,8 +8,6 @@ import { UserContext } from '../context/UserContext'
 
 function Login() {
 
-
-  const [username,setUsername] = useState("")
   const [email,setemail] = useState("")
   const [password,setpassword] = useState("")
   const [error,seterror] = useState(false)
@@ -27,6 +25,25 @@ function Login() {
         credentials: 'include',
         body: JSON.stringify({email: email, password: password})
       })
+
+      if(res.data){
+        const data = await res.json()
+        const cookies = res.headers.get('Set-Cookie')
+        console.warn('Data' , data)
+        console.warn('Cookies', cookies );
+
+        setUser(data)
+        
+      }
+
+      else{
+        console.error('Request Failed with Status' , res.status);
+        
+      }
+
+      navigate("/")
+
+
     } 
     catch (err) {
       seterror(true)
@@ -47,19 +64,16 @@ function Login() {
         </h1>
 
         <h3>
-          <Link to={"/login"}> Login </Link>
+          <Link to={"/register"}> Register </Link>
         </h3>
       </div>
 
       <div className='w-full flex justify-center items-center h-[80vh]'>
         <div className='flex flex-col justify-center items-center space-y-4 w-[80%] md:w-[25%]'>
           <h1 className='text-xl font-bold text-left'>
-            Create An Account 
+            Login To Your Account 
             </h1>
 
-            <input onChange={(e) => setUsername(e.target.value)} className='w-full px-4 border-black outline-0' 
-            type='text' placeholder='Enter Your Name'>
-            </input>
             <input onChange={(e) => setemail(e.target.value)} className='w-full px-4 border-black outline-0' 
             type='email' placeholder='Enter Your Email'>
             </input>
@@ -68,9 +82,9 @@ function Login() {
             </input>
 
 
-            <button onClick={handleRegister} className='w-full px-4 text-lg font-bold text-white bg-black rounded-lg
+            <button onClick={handleLogin} className='w-full px-4 text-lg font-bold text-white bg-black rounded-lg
              hover:bg-gray-500 hover:text-black'>
-              Register
+              Login
             </button>
 
 
@@ -82,12 +96,12 @@ function Login() {
             <div className='flex justify-center items-center space-x-3'>
 
               <p>
-                Already Have AN Account?
+                New Here
               </p>
 
               <p className='text-gray-500 hover:text-black'>
-                <Link to={"/login"}>
-                Login
+                <Link to={"/register"}>
+                Register
                 </Link>
               </p>
 
