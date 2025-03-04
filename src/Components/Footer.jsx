@@ -31,7 +31,7 @@ function Footer() {
 
       </div>
 
-      <p className='py-2 pb-6 text-center text-black bg-blacktext-sm'>All Rights Reserved @Blogesh 2025 </p>
+      <p className='py-2 pb-6 text-center text-black bg-blacktext-sm'>All Rights Reserved @Blogosphere 2025 </p>
 
 
     </div>

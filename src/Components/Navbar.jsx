@@ -18,7 +18,7 @@ function Navbar() {
   return (
     <div className="flex items-center justify-between px-6 md:px-[200px] py-4 bg-black text-white">
     <h1 className="text-lg md:text-x1 font-extrabold">
-      <Link to={"/"}>Blogesh</Link>
+      <Link to={"/"}>Blogosphere</Link>
     </h1>
 
     {path === "/" && (
