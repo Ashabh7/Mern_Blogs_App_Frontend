@@ -25,8 +25,8 @@ const PostDetails = () => {
 
   const fetchPost=async()=>{
     try{
-      const res= await axios.get("/api/posts/"+postId)
-      // console.log(res.data)
+      const res= await axios.get(URL+"/api/posts/"+postId)
+      console.log(res)
       setPost(res.data)
     }
     catch(err){
@@ -111,7 +111,7 @@ const PostDetails = () => {
 
         <div className="flex " >   <FcManager className=" text-2xl mr-2 " > </FcManager> By {post.username}</div>
        <div className="flex  space-x-2">
-       <p>{new Date(post.updatedAt).toString().slice(3,15)}</p>
+       <p>{new Date(post.updatedAt).toString()}</p>
        </div>
         </div>
         <div className=" w-[100%] flex flex-col justify-center   " >

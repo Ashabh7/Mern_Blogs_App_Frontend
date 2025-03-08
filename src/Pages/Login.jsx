@@ -13,39 +13,72 @@ const Login = () => {
   const {setUser}=useContext(UserContext)
   const navigate=useNavigate()
 
-  const handleLogin=async()=>{
-    try{
-      // const res=await axios.post(URL+"/api/auth/login",{email,password},{withCredentials:true})
-      const res= await fetch("/api/auth/login",{
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+  // const handleLogin=async()=>{
+  //   try{
+  //     // const res=await axios.post(URL+"/api/auth/login",{email,password},{withCredentials:true})
+  //     const res= await fetch("/api/auth/login",{
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       credentials: 'include',
+  //       body: JSON.stringify({ email: email, password: password })
+  //     })
+  //     // console.log(res.data)
+  //     if (res.ok) {
+  //       const data = await res.json(); // Extract JSON data
+  //       const cookies = res.headers.get('Set-Cookie');
+  //       console.warn('Data:', data);
+  //       console.warn('Cookies:', cookies);
+        
+  //       setUser(data)
+  //     } else {
+  //       console.error('Request failed with status:', res.status);
+  //     }
+     
+  //     navigate("/")
+
+  //   }
+  //   catch(err){
+  //     setError(true)
+  //     console.log(err)
+
+  //   }
+
+  // }
+
+  const handleLogin = async () => {
+    try {
+      // Using axios to make the POST request
+      const res = await axios.post(URL+"/api/auth/login", 
+        {
+          email: email,
+          password: password
         },
-        credentials: 'include',
-        body: JSON.stringify({ email: email, password: password })
-      })
-      // console.log(res.data)
-      if (res.ok) {
-        const data = await res.json(); // Extract JSON data
-        const cookies = res.headers.get('Set-Cookie');
+        {
+          withCredentials: true,  // This is similar to the 'credentials: include' in fetch
+        }
+      );
+  
+      // If the request was successful
+      if (res.status === 200) {
+        const data = res.data;  // Extract JSON data
+        const cookies = res.headers['set-cookie'];  // Extract cookies if needed
         console.warn('Data:', data);
         console.warn('Cookies:', cookies);
-        
-        setUser(data)
+  
+        setUser(data);  // Update the state with user data
       } else {
         console.error('Request failed with status:', res.status);
       }
-     
-      navigate("/")
-
+  
+      navigate("/");  // Navigate after successful login
+  
+    } catch (err) {
+      setError(true);
+      console.log(err);  // Log the error if the request fails
     }
-    catch(err){
-      setError(true)
-      console.log(err)
-
-    }
-
-  }
+  };
   return (
     <>
     <div className="flex items-center justify-between px-6 md:px-[200px] py-4">
