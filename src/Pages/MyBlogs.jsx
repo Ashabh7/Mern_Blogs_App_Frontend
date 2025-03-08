@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from "react"
 import { UserContext } from "../context/UserContext"
 import axios from "axios"
 import { URL } from "../url"
-import HomePosts from "../components/HomePosts"
+import HomePosts from "../Components/HomePosts"
 import Loader from "../Components/Loader"
 
 
