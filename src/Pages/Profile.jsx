@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
-// import ProfilePosts from "../components/ProfilePosts";
+import ProfilePosts from "../Components/ProfilePosts";
 import axios from "axios";
 import { IF, URL } from "../url";
 import { UserContext } from "../context/UserContext";

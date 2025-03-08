@@ -1,6 +1,6 @@
 import axios from "axios"
 import Footer from "../components/Footer"
-import HomePosts from "../components/HomePosts"
+import HomePosts from "../Components/HomePosts"
 import Navbar from "../components/Navbar"
 import { IF, URL } from "../url"
 import { useContext, useEffect, useState } from "react"
