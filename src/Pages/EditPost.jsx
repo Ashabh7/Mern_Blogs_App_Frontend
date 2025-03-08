@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react"
-import Footer from "../Components/Footer"
-import Navbar from "../Components/Navbar"
+import Footer from "../components/Footer"
+import Navbar from "../components/Navbar"
 import {ImCross} from 'react-icons/im'
 import axios from "axios"
 import { URL } from "../url"

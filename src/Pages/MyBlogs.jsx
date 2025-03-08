@@ -1,12 +1,12 @@
 import { Link, useLocation } from "react-router-dom"
-import Footer from "../Components/Footer"
-import Navbar from "../Components/Navbar"
+import Footer from "../components/Footer"
+import Navbar from "../components/Navbar"
 import { useContext, useEffect, useState } from "react"
 import { UserContext } from "../context/UserContext"
 import axios from "axios"
 import { URL } from "../url"
-import HomePosts from "../Components/HomePosts"
-import Loader from "../Components/Loader"
+import HomePosts from "../components/HomePosts"
+import Loader from "../components/Loader"
 
 
 const MyBlogs = () => {

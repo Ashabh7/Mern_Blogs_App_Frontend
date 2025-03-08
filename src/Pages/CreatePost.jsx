@@ -1,5 +1,5 @@
-import Navbar from '../Components/Navbar'
-import Footer from '../Components/Footer'
+import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 import {ImCross} from 'react-icons/im'
 import { useContext, useState } from 'react'
 import { UserContext } from '../context/UserContext'
