@@ -111,7 +111,7 @@ const PostDetails = () => {
 
         <div className="flex " >   <FcManager className=" text-2xl mr-2 " > </FcManager> By {post.username}</div>
        <div className="flex  space-x-2">
-       <p>{new Date(post.updatedAt).toString()}</p>
+       <p>{new Date(post.updatedAt).toString().slice(3,15)}</p>
        </div>
         </div>
         <div className=" w-[100%] flex flex-col justify-center   " >
