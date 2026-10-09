@@ -1,132 +1,377 @@
-import { useContext, useEffect, useState } from "react"
-import Footer from "../components/Footer"
-import Navbar from "../components/Navbar"
-import {ImCross} from 'react-icons/im'
-import axios from "axios"
-import { URL } from "../url"
-import { useNavigate, useParams } from "react-router-dom"
-import { UserContext } from "../context/UserContext"
+import { useContext, useEffect, useState } from "react";
+import { ImCross } from "react-icons/im";
+import { useNavigate, useParams } from "react-router-dom";
 
+import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
+import { UserContext } from "../context/UserContext.js";
+import api from "../services/api";
+import "../css/EditPost.css";
 
-const EditPost = () => {
+const categories = [
+  "Artificial Intelligence",
+  "Big Data",
+  "Blockchain",
+  "Business Management",
+  "Cloud Computing",
+  "Database",
+  "Cyber Security",
+  "DevOps",
+  "Web Development",
+  "Mobile Development",
+  "Operating System",
+  "Enterprise",
+];
 
-    const postId=useParams().id
-    const {user}=useContext(UserContext)
-    const navigate=useNavigate()
-    const [title,setTitle]=useState("")
-    const [desc,setDesc]=useState("")
-    const [file,setFile]=useState(null)
-    const [cat,setCat]=useState("")
-    const [cats,setCats]=useState([])
+function EditPost() {
+  const { id: postId } = useParams();
+  const { user, loading: userLoading } = useContext(UserContext);
 
-    const fetchPost=async()=>{
-      try{
-        const res=await axios.get(URL+"/api/posts/"+postId)
-        setTitle(res.data.title)
-        setDesc(res.data.desc)
-        setFile(res.data.photo)
-        setCats(res.data.categories)
+  const navigate = useNavigate();
 
-      }
-      catch(err){
-        console.log(err)
-      }
-    }
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
+  const [currentPhoto, setCurrentPhoto] = useState("");
+  const [file, setFile] = useState(null);
 
-    const handleUpdate=async (e)=>{
-      e.preventDefault()
-      const post={
-        title,
-        desc,
-        username:user.username,
-        userId:user._id,
-        categories:cats
-      }
+  const [category, setCategory] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
-      if(file){
-        const data=new FormData()
-        const filename=Date.now()+file.name
-        data.append("img",filename)
-        data.append("file",file)
-        post.photo=filename
-        // console.log(data)
-        //img upload
-        try{
-          const imgUpload=await axios.post(URL+"/api/upload",data)
-          // console.log(imgUpload.data)
-        }
-        catch(err){
-          console.log(err)
-        }
-      }
-      //post upload
-     
-      try{
-        const res=await axios.put(URL+"/api/posts/"+postId,post,{withCredentials:true})
-        navigate("/posts/post/"+res.data._id)
-        // console.log(res.data)
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [error, setError] = useState("");
 
-      }
-      catch(err){
-        console.log(err)
+  useEffect(() => {
+    async function fetchPost() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await api.get(`/api/posts/${postId}`);
+        const post = response.data;
+
+        setTitle(post.title);
+        setDesc(post.desc);
+        setCurrentPhoto(post.photo || "");
+        setSelectedCategories(post.categories || []);
+      } catch (error) {
+        console.error("Failed to fetch post:", error);
+        setError("Unable to load this post.");
+      } finally {
+        setLoading(false);
       }
     }
 
-    
+    fetchPost();
+  }, [postId]);
 
-    useEffect(()=>{
-      fetchPost()
-    },[postId])
+  function addCategory() {
+    const trimmedCategory = category.trim();
 
-    const deleteCategory=(i)=>{
-       let updatedCats=[...cats]
-       updatedCats.splice(i)
-       setCats(updatedCats)
+    if (!trimmedCategory) {
+      return;
     }
 
-    const addCategory=()=>{
-        let updatedCats=[...cats]
-        updatedCats.push(cat)
-        setCat("")
-        setCats(updatedCats)
+    if (selectedCategories.includes(trimmedCategory)) {
+      return;
     }
+
+    setSelectedCategories((previous) => [
+      ...previous,
+      trimmedCategory,
+    ]);
+
+    setCategory("");
+  }
+
+  function deleteCategory(index) {
+    setSelectedCategories((previous) =>
+      previous.filter((_, currentIndex) => currentIndex !== index)
+    );
+  }
+
+  async function handleUpdate(event) {
+    event.preventDefault();
+
+    setError("");
+
+    if (!user) {
+      setError("You must be logged in to edit a post.");
+      return;
+    }
+
+    if (!title.trim() || !desc.trim()) {
+      setError("Please enter a title and description.");
+      return;
+    }
+
+    if (selectedCategories.length === 0) {
+      setError("Please add at least one category.");
+      return;
+    }
+
+    setUpdating(true);
+
+    try {
+      let photo = currentPhoto;
+
+      // Upload a new image only if one was selected.
+      if (file) {
+        const formData = new FormData();
+
+        formData.append("file", file);
+
+        const uploadResponse = await api.post(
+          "/api/upload",
+          formData
+        );
+
+        photo = uploadResponse.data.url;
+      }
+
+      const post = {
+        title: title.trim(),
+        desc: desc.trim(),
+        username: user.username,
+        userId: user._id,
+        categories: selectedCategories,
+        photo,
+      };
+
+      const response = await api.put(
+        `/api/posts/${postId}`,
+        post
+      );
+
+      navigate(`/posts/post/${response.data._id}`);
+    } catch (error) {
+      console.error("Failed to update post:", error);
+
+      setError(
+        error.response?.data?.message ||
+          (typeof error.response?.data === "string"
+            ? error.response.data
+            : "Unable to update the post. Please try again.")
+      );
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  if (userLoading || loading) {
+    return (
+      <>
+        <Navbar />
+
+        <main className="edit-post__message">
+          <p>Loading post...</p>
+        </main>
+
+        <Footer />
+      </>
+    );
+  }
+
+  if (!user) {
+    return (
+      <>
+        <Navbar />
+
+        <main className="edit-post__message">
+          <h1>Login required</h1>
+          <p>You need to log in before editing a post.</p>
+
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+          >
+            Go to Login
+          </button>
+        </main>
+
+        <Footer />
+      </>
+    );
+  }
+
+  if (error && !title && !desc) {
+    return (
+      <>
+        <Navbar />
+
+        <main className="edit-post__message">
+          <h1>Post unavailable</h1>
+          <p>{error}</p>
+
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+          >
+            Back to Home
+          </button>
+        </main>
+
+        <Footer />
+      </>
+    );
+  }
+
+  const API_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+  const imageUrl = currentPhoto.startsWith("http")
+    ? currentPhoto
+    : currentPhoto
+      ? `${API_URL}/images/${currentPhoto}`
+      : "";
+
   return (
-    <div>
-        <Navbar/>
-        <div className="flex justify-center" >
+    <>
+      <Navbar />
 
-     
-        <div className=' p-4 \ border w-[70%] flex flex-col justify-centerpx-6 md:px-[200px] mt-8'>
-        <h1 className='font-bold flex justify-center md:text-2xl text-xl '>Update a post</h1>
-        <form className='w-full flex flex-col space-y-4 md:space-y-8 mt-4'>
-          <input onChange={(e)=>setTitle(e.target.value)} value={title} type="text" placeholder='Enter post title' className='px-4 py-2 outline-none'/>
-          <input onChange={(e)=>setFile(e.target.files[0])} type="file"  className='px-4'/>
-          <div className='flex flex-col'>
-            <div className='flex items-center space-x-4 md:space-x-8'>
-                <input value={cat} onChange={(e)=>setCat(e.target.value)} className='px-4 py-2 outline-none' placeholder='Enter post category' type="text"/>
-                <div onClick={addCategory} className='bg-black text-white px-4 py-2 font-semibold cursor-pointer'>Add</div>
-            </div>
+      <main className="edit-post">
+        <div className="edit-post__container">
+          <div className="edit-post__header">
+            <p className="edit-post__eyebrow">BlogoSphere</p>
 
-            {/* categories */}
-            <div className='flex px-4 mt-3'>
-            {cats?.map((c,i)=>(
-                <div key={i} className='flex justify-center items-center space-x-2 mr-4 bg-gray-200 px-2 py-1 rounded-md'>
-                <p>{c}</p>
-                <p onClick={()=>deleteCategory(i)} className='text-white bg-black rounded-full cursor-pointer p-1 text-sm'><ImCross/></p>
-            </div>
-            ))}
-            
-            
-            </div>
+            <h1>Edit your post</h1>
+
+            <p>Update your story and keep your readers engaged.</p>
           </div>
-          <textarea onChange={(e)=>setDesc(e.target.value)} value={desc} rows={9} cols={30} className='px-4 py-2 outline-none' placeholder='Enter post description'/>
-          <button onClick={handleUpdate} className='bg-black w-full md:w-[20%] mx-auto text-white font-semibold px-4 py-2 md:text-xl  text-lg'>Update</button>
-        </form>
+
+          <form
+            className="edit-post__form"
+            onSubmit={handleUpdate}
+          >
+            <div className="edit-post__field">
+              <label htmlFor="title">Title</label>
+
+              <input
+                id="title"
+                type="text"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="Enter your post title"
+              />
+            </div>
+
+            <div className="edit-post__field">
+              <label>Current cover image</label>
+
+              {imageUrl ? (
+                <div className="edit-post__current-image">
+                  <img src={imageUrl} alt={title} />
+                </div>
+              ) : (
+                <p className="edit-post__no-image">
+                  No cover image
+                </p>
+              )}
+            </div>
+
+            <div className="edit-post__field">
+              <label htmlFor="image">Replace cover image</label>
+
+              <input
+                id="image"
+                type="file"
+                accept="image/*"
+                onChange={(event) =>
+                  setFile(event.target.files[0] || null)
+                }
+              />
+
+              {file && (
+                <p className="edit-post__file-name">
+                  New image: {file.name}
+                </p>
+              )}
+            </div>
+
+            <div className="edit-post__field">
+              <label htmlFor="category">Categories</label>
+
+              <div className="edit-post__category-input">
+                <select
+                  id="category"
+                  value={category}
+                  onChange={(event) =>
+                    setCategory(event.target.value)
+                  }
+                >
+                  <option value="">Select a category</option>
+
+                  {categories.map((item) => (
+                    <option value={item} key={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
+
+                <button
+                  type="button"
+                  onClick={addCategory}
+                  className="edit-post__add-category"
+                >
+                  Add
+                </button>
+              </div>
+
+              {selectedCategories.length > 0 && (
+                <div className="edit-post__categories">
+                  {selectedCategories.map((item, index) => (
+                    <div
+                      className="edit-post__category"
+                      key={item}
+                    >
+                      <span>{item}</span>
+
+                      <button
+                        type="button"
+                        onClick={() => deleteCategory(index)}
+                        aria-label={`Remove ${item}`}
+                        title={`Remove ${item}`}
+                      >
+                        <ImCross />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="edit-post__field">
+              <label htmlFor="description">Description</label>
+
+              <textarea
+                id="description"
+                rows="12"
+                value={desc}
+                onChange={(event) => setDesc(event.target.value)}
+                placeholder="Write your story..."
+              />
+            </div>
+
+            {error && (
+              <p className="edit-post__error" role="alert">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="edit-post__submit"
+              disabled={updating}
+            >
+              {updating ? "Updating..." : "Update post"}
+            </button>
+          </form>
         </div>
-        </div>
-        <Footer/>
-    </div>
-  )
+      </main>
+
+      <Footer />
+    </>
+  );
 }
 
-export default EditPost
+export default EditPost;

@@ -1,107 +1,135 @@
-import { Link, useNavigate } from "react-router-dom"
-import Footer from "../components/Footer"
-import { useContext, useState } from "react"
-import axios from "axios"
-import { URL } from "../url"
-import { UserContext } from "../context/UserContext"
+import { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
+import Footer from "../components/Footer";
+import { UserContext } from "../context/UserContext.js";
+import api from "../services/api";
+import "../css/Login.css";
 
-const Login = () => {
-  const [email,setEmail]=useState("")
-  const [password,setPassword]=useState("")
-  const [error,setError]=useState(false)
-  const {setUser}=useContext(UserContext)
-  const navigate=useNavigate()
+function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  // const handleLogin=async()=>{
-  //   try{
-  //     // const res=await axios.post(URL+"/api/auth/login",{email,password},{withCredentials:true})
-  //     const res= await fetch("/api/auth/login",{
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       credentials: 'include',
-  //       body: JSON.stringify({ email: email, password: password })
-  //     })
-  //     // console.log(res.data)
-  //     if (res.ok) {
-  //       const data = await res.json(); // Extract JSON data
-  //       const cookies = res.headers.get('Set-Cookie');
-  //       console.warn('Data:', data);
-  //       console.warn('Cookies:', cookies);
-        
-  //       setUser(data)
-  //     } else {
-  //       console.error('Request failed with status:', res.status);
-  //     }
-     
-  //     navigate("/")
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  //   }
-  //   catch(err){
-  //     setError(true)
-  //     console.log(err)
+  const { setUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
-  //   }
+  async function handleLogin(event) {
+    event.preventDefault();
 
-  // }
+    setError("");
 
-  const handleLogin = async () => {
-    try {
-      // Using axios to make the POST request
-      const res = await axios.post(URL+"/api/auth/login", 
-        {
-          email: email,
-          password: password
-        },
-        {
-          withCredentials: true,  // This is similar to the 'credentials: include' in fetch
-        }
-      );
-  
-      // If the request was successful
-      if (res.status === 200) {
-        const data = res.data;  // Extract JSON data
-        const cookies = res.headers['set-cookie'];  // Extract cookies if needed
-        console.warn('Data:', data);
-        console.warn('Cookies:', cookies);
-  
-        setUser(data);  // Update the state with user data
-      } else {
-        console.error('Request failed with status:', res.status);
-      }
-  
-      navigate("/");  // Navigate after successful login
-  
-    } catch (err) {
-      setError(true);
-      console.log(err);  // Log the error if the request fails
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter your email and password.");
+      return;
     }
-  };
+
+    setLoading(true);
+
+    try {
+      const response = await api.post("/api/auth/login", {
+        email,
+        password,
+      });
+
+      setUser(response.data);
+      navigate("/");
+    } catch (error) {
+      console.error("Login failed:", error);
+
+      if (error.response?.status === 404) {
+        setError("User not found.");
+      } else if (error.response?.status === 401) {
+        setError("Incorrect password.");
+      } else {
+        setError("Unable to log in. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <>
-    <div className="flex items-center justify-between px-6 md:px-[200px] py-4">
-    <h1 className="text-lg md:text-xl font-extrabold"><Link to="/">BlogoSphere</Link></h1>
-    <h3><Link to="/register">Register</Link></h3>
-    </div>
-<div className="w-full flex justify-center items-center h-[80vh] ">
-       <div className="flex flex-col justify-center items-center space-y-4 w-[80%] md:w-[25%]">
-         <h1 className="text-xl font-bold text-left">Log in to your account</h1>
-         <input onChange={(e)=>setEmail(e.target.value)} className="w-full px-4 py-2 border-2 border-black outline-0" type="text" placeholder="Enter your email" />
-         <input onChange={(e)=>setPassword(e.target.value)} className="w-full px-4 py-2 border-2 border-black outline-0" type="password" placeholder="Enter your password" />
-         <button onClick={handleLogin} className="w-full px-4 py-4 text-lg font-bold text-white bg-black rounded-lg hover:bg-gray-500 hover:text-black ">Log in</button>
-         {error && <h3 className="text-red-500 text-sm ">Something went wrong</h3>}
-         <div className="flex justify-center items-center space-x-3">
-          <p>New here?</p>
-          <p className="text-gray-500 hover:text-black"><Link to="/register">Register</Link></p>
-         </div>
-       </div>
-    </div>
-    <Footer/>
+      <main className="login">
+        <div className="login__container">
+          <div className="login__header">
+            <Link to="/" className="login__brand">
+              BlogoSphere
+            </Link>
+
+            <Link to="/register" className="login__register-link">
+              Register
+            </Link>
+          </div>
+
+          <div className="login__content">
+            <form className="login__form" onSubmit={handleLogin}>
+              <div className="login__intro">
+                <p className="login__eyebrow">Welcome back</p>
+
+                <h1>Log in to your account</h1>
+
+                <p>
+                  Continue reading, writing, and sharing your
+                  stories.
+                </p>
+              </div>
+
+              <div className="login__field">
+                <label htmlFor="email">Email</label>
+
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="Enter your email"
+                  autoComplete="email"
+                />
+              </div>
+
+              <div className="login__field">
+                <label htmlFor="password">Password</label>
+
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                />
+              </div>
+
+              {error && (
+                <p className="login__error" role="alert">
+                  {error}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="login__button"
+                disabled={loading}
+              >
+                {loading ? "Logging in..." : "Log in"}
+              </button>
+
+              <p className="login__footer-text">
+                New here?{" "}
+                <Link to="/register">Create an account</Link>
+              </p>
+            </form>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
     </>
-    
-  )
+  );
 }
 
-export default Login
+export default Login;

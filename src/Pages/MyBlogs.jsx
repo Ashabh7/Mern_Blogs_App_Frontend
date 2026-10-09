@@ -1,66 +1,163 @@
-import { Link, useLocation } from "react-router-dom"
-import Footer from "../components/Footer"
-import Navbar from "../components/Navbar"
-import { useContext, useEffect, useState } from "react"
-import { UserContext } from "../context/UserContext"
-import axios from "axios"
-import { URL } from "../url"
-import HomePosts from "../Components/HomePosts"
-import Loader from "../components/Loader"
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
+import Footer from "../components/Footer";
+import HomePosts from "../components/HomePosts";
+import Loader from "../components/Loader";
+import Navbar from "../components/Navbar";
+import { UserContext } from "../context/UserContext.js";
+import api from "../services/api";
+import "../css/MyBlogs.css";
 
-const MyBlogs = () => {
-    const {search}=useLocation()
-  // console.log(search)
-  const [posts,setPosts]=useState([])
-  const [noResults,setNoResults]=useState(false)
-  const [loader,setLoader]=useState(false)
-  const {user}=useContext(UserContext)
-  // console.log(user)
+function MyBlogs() {
+  const { id: userId } = useParams();
+  const { user, loading: userLoading } = useContext(UserContext);
 
-  const fetchPosts=async()=>{
-    setLoader(true)
-    try{
-      const res=await axios.get(URL+"/api/posts/user/"+user._id)
-      // console.log(res.data)
-      setPosts(res.data)
-      if(res.data.length===0){
-        setNoResults(true)
+  const navigate = useNavigate();
+
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const isOwnBlogs = user?._id === userId;
+
+  useEffect(() => {
+    async function fetchPosts() {
+      if (!userId) {
+        return;
       }
-      else{
-        setNoResults(false)
+
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await api.get(
+          `/api/posts/user/${userId}`
+        );
+
+        setPosts(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user posts:", error);
+        setError("Unable to load these blogs.");
+      } finally {
+        setLoading(false);
       }
-      setLoader(false)
-      
     }
-    catch(err){
-      console.log(err)
-      setLoader(true)
-    }
+
+    fetchPosts();
+  }, [userId]);
+
+  if (userLoading) {
+    return (
+      <>
+        <Navbar />
+
+        <main className="my-blogs__loading">
+          <Loader />
+        </main>
+
+        <Footer />
+      </>
+    );
   }
 
-  useEffect(()=>{
-    fetchPosts()
+  if (!user) {
+    return (
+      <>
+        <Navbar />
 
-  },[search])
+        <main className="my-blogs__message">
+          <h1>Login required</h1>
+          <p>You need to log in to view your blogs.</p>
+
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+          >
+            Go to Login
+          </button>
+        </main>
+
+        <Footer />
+      </>
+    );
+  }
 
   return (
-    <div>
-        <Navbar/>
-        <div className="px-8 md:px-[200px] min-h-[80vh]">
-        {loader?<div className="h-[40vh] flex justify-center items-center"><Loader/></div>:!noResults?
-        posts.map((post)=>(
-          <>
-          <Link to={user?`/posts/post/${post._id}`:"/login"}>
-          <HomePosts key={post._id} post={post}/>
-          </Link>
-          </>
-          
-        )):<h3 className="text-center font-bold mt-16">No posts available</h3>}
+    <>
+      <Navbar />
+
+      <main className="my-blogs">
+        <div className="my-blogs__container">
+          <header className="my-blogs__header">
+            <div>
+              <p className="my-blogs__eyebrow">
+                {isOwnBlogs ? "Your writing" : "BlogoSphere"}
+              </p>
+
+              <h1>
+                {isOwnBlogs ? "My Blogs" : "Blogs"}
+              </h1>
+
+              <p>
+                {isOwnBlogs
+                  ? "Manage and revisit everything you've published."
+                  : "Explore this writer's published stories."}
+              </p>
+            </div>
+
+            <div className="my-blogs__count">
+              <strong>{posts.length}</strong>
+              <span>
+                {posts.length === 1 ? "post" : "posts"}
+              </span>
+            </div>
+          </header>
+
+          {loading ? (
+            <div className="my-blogs__posts-loading">
+              <Loader />
+            </div>
+          ) : error ? (
+            <div className="my-blogs__empty">
+              <h2>Something went wrong</h2>
+              <p>{error}</p>
+            </div>
+          ) : posts.length === 0 ? (
+            <div className="my-blogs__empty">
+              <h2>No posts yet</h2>
+
+              <p>
+                {isOwnBlogs
+                  ? "You haven't published anything yet. Start writing your first story."
+                  : "This writer hasn't published any posts yet."}
+              </p>
+
+              {isOwnBlogs && (
+                <button
+                  type="button"
+                  onClick={() => navigate("/write")}
+                >
+                  Write your first post
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="my-blogs__posts">
+              {posts.map((post) => (
+                <HomePosts
+                  key={post._id}
+                  post={post}
+                />
+              ))}
+            </div>
+          )}
         </div>
-        <Footer/>
-    </div>
-  )
+      </main>
+
+      <Footer />
+    </>
+  );
 }
 
-export default MyBlogs
+export default MyBlogs;

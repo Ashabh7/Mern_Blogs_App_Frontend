@@ -1,0 +1,154 @@
+.home {
+  min-height: 70vh;
+}
+
+.home__hero {
+  padding: 90px 0 80px;
+
+  background: #111111;
+  color: #ffffff;
+}
+
+.home__container {
+  width: min(1120px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.home__eyebrow {
+  margin-bottom: 14px;
+
+  color: #a3a3a3;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.home__title {
+  max-width: 720px;
+
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -0.06em;
+}
+
+.home__title span {
+  color: #a3a3a3;
+}
+
+.home__subtitle {
+  max-width: 570px;
+  margin-top: 24px;
+
+  color: #b8b8b8;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.home__content {
+  padding-top: 45px;
+}
+
+.home__categories {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 35px;
+
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.category-button {
+  flex-shrink: 0;
+
+  padding: 8px 16px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+
+  background: #ffffff;
+  color: #555555;
+
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.category-button:hover {
+  border-color: #111111;
+  color: #111111;
+}
+
+.category-button--active {
+  border-color: #111111;
+  background: #111111;
+  color: #ffffff;
+}
+
+.home__posts {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.home__message {
+  min-height: 280px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.home__message h2 {
+  margin-bottom: 8px;
+
+  color: #171717;
+  font-size: 1.3rem;
+}
+
+.home__message p {
+  max-width: 420px;
+
+  color: #737373;
+  font-size: 0.9rem;
+}
+
+.home__message--error h2 {
+  color: #dc2626;
+}
+
+@media (max-width: 700px) {
+  .home__hero {
+    padding: 65px 0 60px;
+  }
+
+  .home__container {
+    width: min(100% - 24px, 1120px);
+  }
+
+  .home__title {
+    font-size: clamp(2.7rem, 14vw, 4rem);
+  }
+
+  .home__subtitle {
+    font-size: 0.9rem;
+  }
+
+  .home__content {
+    padding-top: 30px;
+  }
+
+  .home__categories {
+    margin-bottom: 25px;
+  }
+}

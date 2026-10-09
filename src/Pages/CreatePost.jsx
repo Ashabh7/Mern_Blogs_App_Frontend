@@ -1,128 +1,303 @@
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
-import {ImCross} from 'react-icons/im'
-import { useContext, useState } from 'react'
-import { UserContext } from '../context/UserContext'
-import { URL } from '../url'
-import axios from 'axios'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { useContext, useState } from "react";
+import { ImCross } from "react-icons/im";
+import { useNavigate } from "react-router-dom";
 
-const CreatePost = () => {
-   
-    const [title,setTitle]=useState("")
-    const [desc,setDesc]=useState("")
-    const [file,setFile]=useState(null)
-    const {user}=useContext(UserContext)
-    const [cat,setCat]=useState("a")
-    const [cats,setCats]=useState([])
+import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
+import { UserContext } from "../context/UserContext.js";
+import api from "../services/api";
+import "../css/CreatePost.css";
 
-    const navigate=useNavigate()
+const categories = [
+  "Artificial Intelligence",
+  "Big Data",
+  "Blockchain",
+  "Business Management",
+  "Cloud Computing",
+  "Database",
+  "Cyber Security",
+  "DevOps",
+  "Web Development",
+  "Mobile Development",
+  "Operating System",
+  "Enterprise",
+];
 
-    const deleteCategory=(i)=>{
-       let updatedCats=[...cats]
-       updatedCats.splice(i)
-       setCats(updatedCats)
+function CreatePost() {
+  const { user, loading: userLoading } = useContext(UserContext);
+
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
+  const [file, setFile] = useState(null);
+
+  const [category, setCategory] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
+
+  function addCategory() {
+    if (!category) {
+      return;
     }
 
-    const addCategory=()=>{
-        let updatedCats=[...cats]
-        updatedCats.push(cat)
-        setCat("")
-        setCats(updatedCats)
+    if (selectedCategories.includes(category)) {
+      return;
     }
 
-    const handleCreate=async (e)=>{
-        e.preventDefault()
-        const post={
-          title,
-          desc,
-          username:user.username,
-          userId:user._id,
-          categories:cats
-        }
+    setSelectedCategories((previous) => [...previous, category]);
+    setCategory("");
+  }
 
-        if(file){
-          const data=new FormData()
-          const filename=Date.now()+file.name
-          data.append("img",filename)
-          data.append("file",file)
-          post.photo=filename
-          // console.log(data)
-          //img upload
-          try{
-            const imgUpload=await axios.post(URL+"/api/upload",data)
-            // console.log(imgUpload.data)
-          }
-          catch(err){
-            console.log(err)
-          }
-        }
-        //post upload
-        // console.log(post)
-        try{
-          const res=await axios.post(URL+"/api/posts/create",post,{withCredentials:true})
-          navigate("/posts/post/"+res.data._id)
-          // console.log(res.data)
+  function deleteCategory(index) {
+    setSelectedCategories((previous) =>
+      previous.filter((_, currentIndex) => currentIndex !== index)
+    );
+  }
 
-        }
-        catch(err){
-          console.log(err)
-        }
+  async function handleCreate(event) {
+    event.preventDefault();
+
+    setError("");
+
+    if (!user) {
+      setError("You must be logged in to create a post.");
+      return;
     }
 
+    if (!title.trim() || !desc.trim()) {
+      setError("Please enter a title and description.");
+      return;
+    }
 
+    if (selectedCategories.length === 0) {
+      setError("Please select at least one category.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      let photo = "";
+
+      if (file) {
+        const formData = new FormData();
+
+        formData.append("file", file);
+
+        const uploadResponse = await api.post(
+          "/api/upload",
+          formData
+        );
+
+        photo = uploadResponse.data.url;
+      }
+
+      const post = {
+        title: title.trim(),
+        desc: desc.trim(),
+        username: user.username,
+        userId: user._id,
+        categories: selectedCategories,
+        photo,
+      };
+
+      const response = await api.post("/api/posts/create", post);
+
+      navigate(`/posts/post/${response.data._id}`);
+    } catch (error) {
+      console.error("Failed to create post:", error);
+
+      setError(
+        error.response?.data?.message ||
+          (typeof error.response?.data === "string"
+            ? error.response.data
+            : "Unable to create the post. Please try again.")
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (userLoading) {
+    return (
+      <>
+        <Navbar />
+
+        <main className="create-post">
+          <div className="create-post__message">
+            <p>Loading...</p>
+          </div>
+        </main>
+
+        <Footer />
+      </>
+    );
+  }
+
+  if (!user) {
+    return (
+      <>
+        <Navbar />
+
+        <main className="create-post">
+          <div className="create-post__message">
+            <h1>Login required</h1>
+            <p>You need to log in before creating a post.</p>
+
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              className="create-post__message-button"
+            >
+              Go to Login
+            </button>
+          </div>
+        </main>
+
+        <Footer />
+      </>
+    );
+  }
 
   return (
-    <div>
-        <Navbar/>
-        <div className=' flex justify-center ' >
+    <>
+      <Navbar />
 
-       
-        <div className='px-6 m-4 border  flex flex-col w-[70%] shadow-xl  md:px-[200px] mt-8'>
-        <h1 className='font-bold md:text-2xl text-2xl mt-3 flex justify-center '>Create a post</h1>
-        <form className='w-full flex flex-col space-y-4 md:space-y-8 mt-4'>
-          <input onChange={(e)=>setTitle(e.target.value)} type="text" placeholder='Enter post title' className='px-4 py-2 outline-none'/>
-          <input onChange={(e)=>setFile(e.target.files[0])} type="file"  className='px-4'/>
-          <div className='flex flex-col'>
-            <div className='flex items-center space-x-4 md:space-x-8'>
-              <select name="" id=""  value={cat} onChange={(e)=>setCat(e.target.value)}>
-                <option value="Artifical Intelligance">Artifical Intelligance</option>
-                <option value="Big Data">Big Data</option>
-                <option value="Block Chain">Block Chain</option>
-                <option value="Bussiness Management">Bussiness Management</option>
-                <option value="Cloud Computing">Cloud Computing</option>
-                <option value="Database">Database</option>
-                <option value="Cyber Security">Cyber Security</option>
-                <option value="DevOps">DevOps</option>
-                <option value="Web Development">Web Development</option>
-                <option value="Mobile Development">Mobile Development</option>
-                <option value="Operating System">Operating System</option>
-                <option value="Enterprise">Enterprise</option>
-              </select>
-                {/* <input className='px-4 py-2 outline-none' placeholder='Enter post category' type="text"/> */}
-                <div onClick={addCategory} className='bg-black text-white px-4 py-2 font-semibold cursor-pointer'>Add</div>
-            </div>
+      <main className="create-post">
+        <div className="create-post__container">
+          <div className="create-post__header">
+            <p className="create-post__eyebrow">BlogoSphere</p>
 
-            {/* categories */}
-            <div className='flex px-4 mt-3'>
-            {cats?.map((c,i)=>(
-                <div key={i} className='flex justify-center items-center space-x-2 mr-4 bg-gray-200 px-2 py-1 rounded-md'>
-                <p>{c}</p>
-                <p onClick={()=>deleteCategory(i)} className='text-white bg-black rounded-full cursor-pointer p-1 text-sm'><ImCross/></p>
-            </div>
-            ))}
-             
-            
-            </div>
+            <h1>Create a post</h1>
+
+            <p>
+              Share an idea, experience, or story with the
+              community.
+            </p>
           </div>
-          <textarea onChange={(e)=>setDesc(e.target.value)} rows={9} cols={30} className='px-4 py-2 outline-none' placeholder='Enter post description'/>
-          <button onClick={handleCreate} className='bg-black  w-full md:w-[20%] mx-auto text-white font-semibold px-4 py-2 md:text-xl text-lg '>Create</button>
-        </form>
+
+          <form
+            className="create-post__form"
+            onSubmit={handleCreate}
+          >
+            <div className="create-post__field">
+              <label htmlFor="title">Title</label>
+
+              <input
+                id="title"
+                type="text"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="Enter your post title"
+              />
+            </div>
+
+            <div className="create-post__field">
+              <label htmlFor="image">Cover image</label>
+
+              <input
+                id="image"
+                type="file"
+                accept="image/*"
+                onChange={(event) =>
+                  setFile(event.target.files[0] || null)
+                }
+              />
+
+              {file && (
+                <p className="create-post__file-name">
+                  Selected: {file.name}
+                </p>
+              )}
+            </div>
+
+            <div className="create-post__field">
+              <label htmlFor="category">Categories</label>
+
+              <div className="create-post__category-input">
+                <select
+                  id="category"
+                  value={category}
+                  onChange={(event) =>
+                    setCategory(event.target.value)
+                  }
+                >
+                  <option value="">Select a category</option>
+
+                  {categories.map((item) => (
+                    <option value={item} key={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
+
+                <button
+                  type="button"
+                  onClick={addCategory}
+                  className="create-post__add-category"
+                >
+                  Add
+                </button>
+              </div>
+
+              {selectedCategories.length > 0 && (
+                <div className="create-post__categories">
+                  {selectedCategories.map((item, index) => (
+                    <div
+                      className="create-post__category"
+                      key={item}
+                    >
+                      <span>{item}</span>
+
+                      <button
+                        type="button"
+                        onClick={() => deleteCategory(index)}
+                        aria-label={`Remove ${item}`}
+                        title={`Remove ${item}`}
+                      >
+                        <ImCross />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="create-post__field">
+              <label htmlFor="description">Description</label>
+
+              <textarea
+                id="description"
+                rows="12"
+                value={desc}
+                onChange={(event) => setDesc(event.target.value)}
+                placeholder="Write your story..."
+              />
+            </div>
+
+            {error && (
+              <p className="create-post__error" role="alert">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="create-post__submit"
+              disabled={loading}
+            >
+              {loading ? "Publishing..." : "Publish post"}
+            </button>
+          </form>
         </div>
-        </div>
-        <Footer/>
-    </div>
-  )
+      </main>
+
+      <Footer />
+    </>
+  );
 }
 
-export default CreatePost
+export default CreatePost;

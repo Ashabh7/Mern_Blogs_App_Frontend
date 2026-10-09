@@ -1,43 +1,66 @@
-import axios from "axios"
-import { BiEdit } from "react-icons/bi"
-import { MdDelete } from "react-icons/md"
-import { URL } from "../url"
-import { useContext } from "react"
-import { UserContext } from "../context/UserContext"
+import { useContext } from "react";
+import { MdDelete } from "react-icons/md";
 
-const Comment = ({c,post}) => {
+import { UserContext } from "../context/UserContext.js";
+import api from "../services/api";
+import "../css/Comment.css";
 
-  const {user}=useContext(UserContext)
-  const deleteComment=async(id)=>{
-    try{
-      await axios.delete(URL+"/api/comments/"+id,{withCredentials:true})
-      window.location.reload(true)
-    }
-    catch(err){
-      console.log(err)
+function Comment({ comment, onDelete }) {
+  const { user } = useContext(UserContext);
+
+  async function handleDelete() {
+    try {
+      await api.delete(`/api/comments/${comment._id}`);
+
+      if (onDelete) {
+        onDelete(comment._id);
+      }
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
     }
   }
-  // console.log(post.userId)
-  // console.log(user._id)
-  // console.log(post)
-  // console.log(user)
-  return (
-    <div className="px-2 py-2 bg-gray-200 w-[90vh] rounded-lg my-2">
-           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-gray-600">@{c.author}</h3>
-            <div className="flex justify-center items-center space-x-4">
-            <p>{new Date(c.updatedAt).toString().slice(3,15)}</p>
-            {user?._id===c?.userId ?
-              <div className="flex items-center justify-center space-x-2">
-                    <p className="cursor-pointer" onClick={()=>deleteComment(c._id)}><MdDelete/></p>
-                </div>:""}
-                
-            </div>
-           </div>
-           <p className="px-4 mt-2">{c.comment}</p>
 
-           </div>
-  )
+  const isOwner = user?._id === comment.userId;
+
+  return (
+    <article className="comment">
+      <div className="comment__header">
+        <div>
+          <h3 className="comment__author">
+            @{comment.author}
+          </h3>
+
+          <time
+            className="comment__date"
+            dateTime={comment.updatedAt}
+          >
+            {new Date(comment.updatedAt).toLocaleDateString(
+              "en-IN",
+              {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              }
+            )}
+          </time>
+        </div>
+
+        {isOwner && (
+          <button
+            type="button"
+            className="comment__delete"
+            onClick={handleDelete}
+            aria-label="Delete comment"
+            title="Delete comment"
+          >
+            <MdDelete />
+          </button>
+        )}
+      </div>
+
+      <p className="comment__text">{comment.comment}</p>
+    </article>
+  );
 }
 
-export default Comment
+export default Comment;

@@ -1,30 +1,70 @@
-import {IF} from '../url'
+import { Link } from "react-router-dom";
 
-const ProfilePosts = ({p}) => {
-  // console.log(p)
+import "../css/ProfilePosts.css";
+
+function ProfilePosts({ post }) {
+  const API_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+  const imageUrl = post.photo?.startsWith("http")
+    ? post.photo
+    : post.photo
+      ? `${API_URL}/images/${post.photo}`
+      : "";
+
   return (
-    <div className="w-full flex mt-8 space-x-4">
-    {/* left */}
-    <div className="w-[35%] h-[200px] flex justify-center items-center">
-    <img src={IF+p.photo} alt="" className="h-full w-full object-cover"/>
-    </div>
-    {/* right */}
-    <div className="flex flex-col w-[65%]">
-      <h1 className="text-xl font-bold md:mb-2 mb-1 md:text-2xl">
-      {p.title}
-      </h1>
-      <div className="flex mb-2 text-sm font-semibold text-gray-500 items-center justify-between md:mb-4">
-       <p>@{p.username}</p>
-       <div className="flex space-x-2">
-       <p>{new Date(p.updatedAt).toString().slice(0,15)}</p>
-       <p>{new Date(p.updatedAt).toString().slice(16,24)}</p>
-       </div>
-      </div>
-      <p className="text-sm md:text-lg">{p.desc.slice(0,200)+" ...Read more"}</p>
-    </div>
+    <article className="profile-post">
+      <Link
+        to={`/posts/post/${post._id}`}
+        className="profile-post__image-link"
+      >
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={post.title}
+            className="profile-post__image"
+          />
+        ) : (
+          <div className="profile-post__no-image">
+            No image
+          </div>
+        )}
+      </Link>
 
-    </div>
-  )
+      <div className="profile-post__content">
+        <h2 className="profile-post__title">
+          <Link to={`/posts/post/${post._id}`}>
+            {post.title}
+          </Link>
+        </h2>
+
+        <div className="profile-post__meta">
+          <span>@{post.username}</span>
+
+          <time dateTime={post.updatedAt}>
+            {new Date(post.updatedAt).toLocaleDateString("en-IN", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })}
+          </time>
+        </div>
+
+        <p className="profile-post__description">
+          {post.desc.length > 200
+            ? `${post.desc.slice(0, 200)}...`
+            : post.desc}
+        </p>
+
+        <Link
+          to={`/posts/post/${post._id}`}
+          className="profile-post__read-more"
+        >
+          Read article →
+        </Link>
+      </div>
+    </article>
+  );
 }
 
-export default ProfilePosts
+export default ProfilePosts;

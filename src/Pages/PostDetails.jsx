@@ -1,154 +1,349 @@
-import { useNavigate, useParams } from "react-router-dom"
-import Comment from "../components/Comment"
-import Footer from "../components/Footer"
-import Navbar from "../components/Navbar"
-import {BiEdit} from 'react-icons/bi'
-import {MdDelete} from 'react-icons/md'
-import axios from "axios"
-import { URL,IF } from "../url"
-import { useContext, useEffect, useState } from "react"
-import { UserContext } from "../context/UserContext"
-import Loader from "../components/Loader"
+import { useContext, useEffect, useState } from "react";
+import { BiEdit } from "react-icons/bi";
+import { MdDelete } from "react-icons/md";
 import { FcManager } from "react-icons/fc";
+import { useNavigate, useParams } from "react-router-dom";
 
+import Comment from "../components/Comment";
+import Footer from "../components/Footer";
+import Loader from "../components/Loader";
+import Navbar from "../components/Navbar";
+import { UserContext } from "../context/UserContext.js";
+import api from "../services/api";
+import "../css/PostDetails.css";
 
-const PostDetails = () => {
+function PostDetails() {
+  const { id: postId } = useParams();
+  const { user } = useContext(UserContext);
 
-  const postId=useParams().id
-  const [post,setPost]=useState({})
-  const {user}=useContext(UserContext)
-  const [comments,setComments]=useState([])
-  const [comment,setComment]=useState("")
-  const [loader,setLoader]=useState(false)
-  const navigate=useNavigate()
-  
+  const navigate = useNavigate();
 
-  const fetchPost=async()=>{
-    try{
-      const res= await axios.get(URL+"/api/posts/"+postId)
-      console.log(res)
-      setPost(res.data)
+  const [post, setPost] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [comment, setComment] = useState("");
+
+  const [postLoading, setPostLoading] = useState(true);
+  const [commentsLoading, setCommentsLoading] = useState(true);
+
+  const [postError, setPostError] = useState("");
+  const [commentError, setCommentError] = useState("");
+
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+  const [deletingPost, setDeletingPost] = useState(false);
+
+  useEffect(() => {
+    async function fetchPost() {
+      setPostLoading(true);
+      setPostError("");
+
+      try {
+        const response = await api.get(`/api/posts/${postId}`);
+        setPost(response.data);
+      } catch (error) {
+        console.error("Failed to fetch post:", error);
+        setPostError("Unable to load this post.");
+      } finally {
+        setPostLoading(false);
+      }
     }
-    catch(err){
-      console.log(err)
+
+    fetchPost();
+  }, [postId]);
+
+  useEffect(() => {
+    async function fetchComments() {
+      setCommentsLoading(true);
+      setCommentError("");
+
+      try {
+        const response = await api.get(
+          `/api/comments/post/${postId}`
+        );
+
+        setComments(response.data);
+      } catch (error) {
+        console.error("Failed to fetch comments:", error);
+        setCommentError("Unable to load comments.");
+      } finally {
+        setCommentsLoading(false);
+      }
+    }
+
+    fetchComments();
+  }, [postId]);
+
+  async function handleDeletePost() {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this post?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingPost(true);
+
+    try {
+      await api.delete(`/api/posts/${postId}`);
+
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to delete post:", error);
+      setPostError("Unable to delete the post. Please try again.");
+      setDeletingPost(false);
     }
   }
 
-  const handleDeletePost=async ()=>{
+  async function handlePostComment(event) {
+    event.preventDefault();
 
-    try{
-      const res=await axios.delete(URL+"/api/posts/"+postId,{withCredentials:true})
-      console.log(res.data)
-      navigate("/")
-    }
-    catch(err){
-      console.log(err)
+    setCommentError("");
+
+    if (!user) {
+      setCommentError("Please log in to comment.");
+      return;
     }
 
+    if (!comment.trim()) {
+      setCommentError("Please write a comment.");
+      return;
+    }
+
+    setCommentSubmitting(true);
+
+    try {
+      const response = await api.post("/api/comments/create", {
+        comment: comment.trim(),
+        author: user.username,
+        postId,
+        userId: user._id,
+      });
+
+      setComments((previous) => [...previous, response.data]);
+      setComment("");
+    } catch (error) {
+      console.error("Failed to post comment:", error);
+      setCommentError("Unable to add your comment.");
+    } finally {
+      setCommentSubmitting(false);
+    }
   }
 
-  useEffect(()=>{
-    fetchPost()
-
-  },[postId])
-
-  const fetchPostComments=async()=>{
-    setLoader(true)
-    try{
-      const res=await axios.get(URL+"/api/comments/post/"+postId)
-      setComments(res.data)
-      setLoader(false)
-
-    }
-    catch(err){
-      setLoader(true)
-      console.log(err)
-    }
+  function handleCommentDelete(commentId) {
+    setComments((previous) =>
+      previous.filter((item) => item._id !== commentId)
+    );
   }
 
-  useEffect(()=>{
-    fetchPostComments()
+  if (postLoading) {
+    return (
+      <>
+        <Navbar />
 
-  },[postId])
+        <main className="post-details__loading">
+          <Loader />
+        </main>
 
-  const postComment=async(e)=>{
-    e.preventDefault()
-    try{
-      const res=await axios.post(URL+"/api/comments/create",
-      {comment:comment,author:user.username,postId:postId,userId:user._id},
-      {withCredentials:true})
-      
-      // fetchPostComments()
-      // setComment("")
-      window.location.reload(true)
-
-    }
-    catch(err){
-         console.log(err)
-    }
-
+        <Footer />
+      </>
+    );
   }
 
+  if (postError || !post) {
+    return (
+      <>
+        <Navbar />
 
-  
+        <main className="post-details__message">
+          <h1>Post unavailable</h1>
+          <p>{postError || "This post could not be found."}</p>
+
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+          >
+            Back to Home
+          </button>
+        </main>
+
+        <Footer />
+      </>
+    );
+  }
+
+  const API_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+  const imageUrl = post.photo?.startsWith("http")
+    ? post.photo
+    : `${API_URL}/images/${post.photo}`;
+
+  const isOwner = user?._id === post.userId;
+
   return (
-    <div>
-        <Navbar/>
-        {loader?<div className="h-[80vh] flex justify-center items-center w-full"><Loader/></div>:<div className="px-8 md:px-[200px] mt-8">
-        <div className=" border p-3 shadow " >
-        <div className="flex justify-between   items-center">
-         <h1 className="text-3xl font-bold text-black md:text-3xl">{post.title}</h1>
-         {user?._id===post?.userId && <div className="flex items-center justify-center space-x-2">
-            <p className="cursor-pointer" onClick={()=>navigate("/edit/"+postId)} ><BiEdit/></p>
-            <p className="cursor-pointer" onClick={handleDeletePost}><MdDelete/></p>
-         </div>}
-        </div>
-       
+    <>
+      <Navbar />
 
-       
-        <div className="flex items-center justify-between mt-2 md:mt-4">
-      
+      <main className="post-details">
+        <article className="post-details__article">
+          <header className="post-details__header">
+            <div className="post-details__title-row">
+              <h1>{post.title}</h1>
 
-        <div className="flex " >   <FcManager className=" text-2xl mr-2 " > </FcManager> By {post.username}</div>
-       <div className="flex  space-x-2">
-       <p>{new Date(post.updatedAt).toString().slice(3,15)}</p>
-       </div>
-        </div>
-        <div className=" w-[100%] flex flex-col justify-center   " >
+              {isOwner && (
+                <div className="post-details__actions">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/edit/${postId}`)}
+                    aria-label="Edit post"
+                    title="Edit post"
+                  >
+                    <BiEdit />
+                  </button>
 
-       
-        <img src={IF+post.photo} className="  object-cover h-[45vh] mx-auto mt-8" alt=""/>
-         <p className="mx-auto mt-8 w-[80vh] border p-5 shadow-xl">{post.desc}</p>
-         <div className="flex  justify-center items-center mt-8 space-x-4 font-semibold">
-          <p>Categories:</p>
-          <div className="flex justify-center items-center space-x-2">
-          {post.categories?.map((c,i)=>(
-            <>
-            <div key={i} className="bg-gray-300 rounded-lg px-3 py-1">{c}</div>
-            </>
-            
-          ))}
-            
+                  <button
+                    type="button"
+                    onClick={handleDeletePost}
+                    disabled={deletingPost}
+                    aria-label="Delete post"
+                    title="Delete post"
+                  >
+                    <MdDelete />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="post-details__meta">
+              <span>
+                <FcManager />
+                By {post.username}
+              </span>
+
+              <time dateTime={post.updatedAt}>
+                {new Date(post.updatedAt).toLocaleDateString(
+                  "en-IN",
+                  {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  }
+                )}
+              </time>
+            </div>
+          </header>
+
+          {post.photo && (
+            <div className="post-details__image-wrapper">
+              <img
+                src={imageUrl}
+                alt={post.title}
+                className="post-details__image"
+              />
+            </div>
+          )}
+
+          <div className="post-details__body">
+            <p>{post.desc}</p>
           </div>
-         </div>
-         <div className="flex justify-center item-center p-3   flex-col mt-4">
-         <h3 className="mt-6 mb-4  font-semibold">Comments:</h3>
-         {comments?.map((c)=>(
-          <Comment className=" " key={c._id} c={c} post={post} />
-         ))}
-           
-         </div>
-         {/* write a comment */}
-         <div className="w-[90vh] border flex justify-center flex-col mt-4 md:flex-row">
-          <input onChange={(e)=>setComment(e.target.value)} type="text" placeholder="Write a comment" className="md:w-[80%] outline-none py-2 px-4 mt-4 md:mt-0"/>
-          <button onClick={postComment} className="bg-black text-sm text-white px-2 py-2 md:w-[20%] mt-4 md:mt-0">Add Comment</button>
-         </div>
-        </div>
-        </div>
-        </div>}
-        <Footer/>
-    </div>
-  )
+
+          {post.categories?.length > 0 && (
+            <div className="post-details__categories">
+              <span className="post-details__categories-label">
+                Categories
+              </span>
+
+              <div className="post-details__category-list">
+                {post.categories.map((category) => (
+                  <span
+                    className="post-details__category"
+                    key={category}
+                  >
+                    {category}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <section className="post-details__comments">
+            <div className="post-details__comments-header">
+              <h2>Comments</h2>
+              <span>{comments.length}</span>
+            </div>
+
+            {commentsLoading ? (
+              <div className="post-details__comments-loading">
+                <Loader />
+              </div>
+            ) : commentError && comments.length === 0 ? (
+              <p className="post-details__comments-error">
+                {commentError}
+              </p>
+            ) : comments.length === 0 ? (
+              <p className="post-details__no-comments">
+                No comments yet. Be the first to share your thoughts.
+              </p>
+            ) : (
+              <div className="post-details__comment-list">
+                {comments.map((item) => (
+                  <Comment
+                    key={item._id}
+                    comment={item}
+                    onDelete={handleCommentDelete}
+                  />
+                ))}
+              </div>
+            )}
+
+            {user ? (
+              <form
+                className="post-details__comment-form"
+                onSubmit={handlePostComment}
+              >
+                <input
+                  type="text"
+                  value={comment}
+                  onChange={(event) =>
+                    setComment(event.target.value)
+                  }
+                  placeholder="Write a comment..."
+                  aria-label="Write a comment"
+                />
+
+                <button
+                  type="submit"
+                  disabled={commentSubmitting}
+                >
+                  {commentSubmitting
+                    ? "Adding..."
+                    : "Add comment"}
+                </button>
+              </form>
+            ) : (
+              <p className="post-details__login-message">
+                <button
+                  type="button"
+                  onClick={() => navigate("/login")}
+                >
+                  Log in
+                </button>{" "}
+                to join the conversation.
+              </p>
+            )}
+
+            {commentError && comments.length > 0 && (
+              <p className="post-details__form-error">
+                {commentError}
+              </p>
+            )}
+          </section>
+        </article>
+      </main>
+
+      <Footer />
+    </>
+  );
 }
 
-export default PostDetails
+export default PostDetails;
