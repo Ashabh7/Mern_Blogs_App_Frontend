@@ -52,7 +52,11 @@ function Navbar() {
               aria-label="Search posts"
             />
 
-            <button type="submit" aria-label="Search">
+            <button
+              type="submit"
+              className="navbar__search-button"
+              aria-label="Search"
+            >
               <BsSearch />
             </button>
           </form>
