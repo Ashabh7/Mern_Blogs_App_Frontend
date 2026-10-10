@@ -1,7 +1,13 @@
 .create-post {
   min-height: 70vh;
   padding: 60px 0 80px;
-  background: #f8f9fb;
+  background:
+    radial-gradient(
+      circle at 85% 0%,
+      rgba(108, 76, 241, 0.06),
+      transparent 35%
+    ),
+    var(--color-background);
 }
 
 .create-post__container {
@@ -10,197 +16,271 @@
 }
 
 .create-post__header {
-  margin-bottom: 35px;
+  margin-bottom: 32px;
 }
 
 .create-post__eyebrow {
-  margin-bottom: 8px;
-  color: #2563eb;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 0.73rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .create-post__header h1 {
-  margin-bottom: 10px;
-  color: #171717;
-  font-size: 2.3rem;
+  margin-bottom: 12px;
+  color: var(--color-text);
+  font-size: 2.4rem;
   font-weight: 800;
   line-height: 1.15;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.045em;
 }
 
 .create-post__header > p:last-child {
-  color: #737373;
+  color: var(--color-text-secondary);
   font-size: 0.95rem;
+  line-height: 1.7;
 }
 
 .create-post__form {
   padding: 38px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.04),
-    0 2px 8px rgba(0, 0, 0, 0.02);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
 }
 
 .create-post__field {
-  margin-bottom: 24px;
+  margin-bottom: 25px;
 }
 
 .create-post__field label {
   display: block;
-  margin-bottom: 8px;
-  color: #404040;
-  font-size: 0.83rem;
+  margin-bottom: 9px;
+  color: var(--color-text);
+  font-size: 0.85rem;
   font-weight: 700;
 }
 
 .create-post__field input[type="text"],
 .create-post__field select,
 .create-post__field textarea {
+  display: block;
   width: 100%;
-  border: 1px solid #d4d4d4;
-  border-radius: 8px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
   outline: none;
-  background: #ffffff;
-  color: #171717;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9rem;
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
 }
 
 .create-post__field input[type="text"] {
-  height: 48px;
+  height: 49px;
   padding: 0 14px;
 }
 
 .create-post__field input[type="text"]::placeholder,
 .create-post__field textarea::placeholder {
-  color: #a3a3a3;
+  color: var(--color-text-muted);
+}
+
+.create-post__field input[type="text"]:hover,
+.create-post__field select:hover,
+.create-post__field textarea:hover {
+  border-color: #bcb2dc;
 }
 
 .create-post__field input[type="text"]:focus,
 .create-post__field select:focus,
 .create-post__field textarea:focus {
-  border-color: #111111;
-  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.07);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(108, 76, 241, 0.11);
 }
 
 .create-post__field input[type="file"] {
+  display: block;
   width: 100%;
-  padding: 12px;
-  border: 1px dashed #d4d4d4;
-  border-radius: 8px;
-  background: #fafafa;
-  color: #555555;
+  padding: 15px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+  font: inherit;
   font-size: 0.85rem;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.create-post__field input[type="file"]:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.create-post__field input[type="file"]::file-selector-button {
+  margin-right: 12px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 7px;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .create-post__file-name {
-  margin-top: 7px;
-  color: #737373;
-  font-size: 0.78rem;
+  margin-top: 9px;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
 }
 
 .create-post__category-input {
   display: flex;
+  align-items: stretch;
   gap: 10px;
 }
 
 .create-post__field select {
-  height: 46px;
+  min-width: 0;
+  height: 47px;
   padding: 0 12px;
+  cursor: pointer;
 }
 
 .create-post__add-category {
   flex-shrink: 0;
   padding: 0 18px;
   border: none;
-  border-radius: 8px;
-  background: #111111;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
   color: #ffffff;
+  font: inherit;
   font-size: 0.85rem;
   font-weight: 700;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .create-post__add-category:hover {
-  background: #333333;
+  background: var(--color-primary-dark);
+}
+
+.create-post__add-category:active {
+  transform: scale(0.98);
 }
 
 .create-post__categories {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 9px;
+  margin-top: 13px;
 }
 
 .create-post__category {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 9px 7px 11px;
+  padding: 7px 9px 7px 12px;
+  border: 1px solid #e1d9ff;
   border-radius: 999px;
-  background: #f3f4f6;
-  color: #404040;
-  font-size: 0.78rem;
-  font-weight: 600;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-size: 0.79rem;
+  font-weight: 650;
 }
 
 .create-post__category button {
-  width: 20px;
-  height: 20px;
+  width: 21px;
+  height: 21px;
   display: grid;
   place-items: center;
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: #111111;
-  color: #ffffff;
-  font-size: 0.5rem;
+  background: rgba(108, 76, 241, 0.13);
+  color: var(--color-primary-dark);
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .create-post__category button:hover {
-  background: #dc2626;
+  background: var(--color-danger);
+  color: #ffffff;
 }
 
 .create-post__field textarea {
-  min-height: 260px;
-  padding: 14px;
+  min-height: 280px;
+  padding: 15px;
   resize: vertical;
-  font-size: 0.9rem;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
 .create-post__error {
   margin-bottom: 18px;
-  color: #dc2626;
-  font-size: 0.83rem;
+  padding: 12px 14px;
+  border: 1px solid rgba(220, 63, 82, 0.15);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  font-size: 0.85rem;
+  line-height: 1.6;
 }
 
 .create-post__submit {
   width: 100%;
-  height: 48px;
+  min-height: 49px;
+  padding: 12px 18px;
   border: none;
-  border-radius: 8px;
-  background: #111111;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-primary-dark)
+  );
   color: #ffffff;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 750;
+  cursor: pointer;
+  box-shadow: 0 5px 12px rgba(108, 76, 241, 0.18);
   transition:
-    background 0.2s ease,
-    opacity 0.2s ease;
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    opacity var(--transition-fast);
 }
 
 .create-post__submit:hover:not(:disabled) {
-  background: #333333;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(108, 76, 241, 0.26);
+}
+
+.create-post__submit:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .create-post__submit:disabled {
   cursor: not-allowed;
-  opacity: 0.55;
+  opacity: 0.6;
+  box-shadow: none;
 }
 
 .create-post__message {
@@ -215,29 +295,46 @@
 }
 
 .create-post__message h1 {
-  margin-bottom: 8px;
-  color: #171717;
-  font-size: 1.6rem;
+  margin-bottom: 10px;
+  color: var(--color-text);
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
 }
 
 .create-post__message p {
-  margin-bottom: 20px;
-  color: #737373;
-  font-size: 0.9rem;
+  margin-bottom: 22px;
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.7;
 }
 
 .create-post__message-button {
-  padding: 11px 20px;
+  padding: 12px 21px;
   border: none;
-  border-radius: 8px;
-  background: #111111;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
   color: #ffffff;
-  font-size: 0.85rem;
+  font: inherit;
+  font-size: 0.87rem;
   font-weight: 700;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .create-post__message-button:hover {
-  background: #333333;
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.create-post__add-category:focus-visible,
+.create-post__category button:focus-visible,
+.create-post__submit:focus-visible,
+.create-post__message-button:focus-visible {
+  outline: 3px solid rgba(108, 76, 241, 0.35);
+  outline-offset: 3px;
 }
 
 @media (max-width: 640px) {
@@ -246,15 +343,28 @@
   }
 
   .create-post__container {
-    width: min(100% - 24px, 820px);
+    width: calc(100% - 28px);
+  }
+
+  .create-post__header {
+    margin-bottom: 25px;
   }
 
   .create-post__header h1 {
     font-size: 1.9rem;
   }
 
+  .create-post__header > p:last-child {
+    font-size: 0.9rem;
+  }
+
   .create-post__form {
-    padding: 26px 20px;
+    padding: 27px 20px;
+    border-radius: var(--radius-lg);
+  }
+
+  .create-post__field {
+    margin-bottom: 22px;
   }
 
   .create-post__category-input {
@@ -262,6 +372,33 @@
   }
 
   .create-post__add-category {
-    height: 44px;
+    min-height: 45px;
+  }
+
+  .create-post__field textarea {
+    min-height: 240px;
+  }
+}
+
+@media (max-width: 360px) {
+  .create-post__form {
+    padding: 23px 15px;
+  }
+
+  .create-post__header h1 {
+    font-size: 1.7rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .create-post__field input,
+  .create-post__field select,
+  .create-post__field textarea,
+  .create-post__field input[type="file"],
+  .create-post__add-category,
+  .create-post__category button,
+  .create-post__submit,
+  .create-post__message-button {
+    transition: none;
   }
 }

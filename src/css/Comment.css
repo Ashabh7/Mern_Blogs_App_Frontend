@@ -1,12 +1,20 @@
 .comment {
   width: 100%;
   padding: 18px;
-
-  background: #f8f9fb;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition:
+    border-color var(--transition-normal),
+    box-shadow var(--transition-normal);
 }
 
+.comment:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Header */
 .comment__header {
   display: flex;
   align-items: flex-start;
@@ -14,47 +22,86 @@
   gap: 16px;
 }
 
+/* Author */
 .comment__author {
-  margin-bottom: 3px;
-
-  color: #404040;
+  margin-bottom: 4px;
+  color: var(--color-text);
   font-size: 0.9rem;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
+/* Date */
 .comment__date {
-  color: #a3a3a3;
-  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
 }
 
+/* Delete button */
 .comment__delete {
-  width: 32px;
-  height: 32px;
-
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
-
   flex-shrink: 0;
-
-  border: none;
-  border-radius: 7px;
-
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: #9ca3af;
-
+  color: var(--color-text-muted);
   font-size: 1rem;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .comment__delete:hover {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--color-danger-bg);
+  border-color: #ffd5da;
+  color: var(--color-danger);
 }
 
+.comment__delete:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* Comment text */
 .comment__text {
   margin-top: 12px;
-
-  color: #404040;
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
-  line-height: 1.6;
+  line-height: 1.75;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .comment {
+    padding: 14px;
+    border-radius: var(--radius-sm);
+  }
+
+  .comment__header {
+    gap: 10px;
+  }
+
+  .comment__author {
+    font-size: 0.85rem;
+  }
+
+  .comment__text {
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comment,
+  .comment__delete {
+    transition: none;
+  }
 }

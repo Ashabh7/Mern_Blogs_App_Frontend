@@ -1,151 +1,374 @@
+/* ========================================
+   BlogoSphere — Modern Navbar
+======================================== */
+
 .navbar {
   position: sticky;
   top: 0;
   z-index: 1000;
   width: 100%;
-  background: #111111;
-  color: #ffffff;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(248, 247, 252, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(233, 230, 242, 0.8);
 }
 
 .navbar__container {
-  position: relative;
-  width: min(1120px, calc(100% - 40px));
-  min-height: 72px;
-  margin: 0 auto;
-
+  width: min(1200px, calc(100% - 40px));
+  min-height: 78px;
+  margin-inline: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 28px;
 }
 
+/* ========================================
+   Brand
+======================================== */
+
 .navbar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   flex-shrink: 0;
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  color: var(--color-text);
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  transition:
+    color var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .navbar__brand:hover {
-  opacity: 0.8;
+  color: var(--color-primary);
 }
 
-.navbar__search {
-  width: min(420px, 100%);
-  height: 42px;
+.navbar__brand img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
 
+/* ========================================
+   Modern Search Bar
+======================================== */
+
+.navbar__search {
+  position: relative;
   display: flex;
   align-items: center;
+  flex: 1;
+  max-width: 360px;
+  height: 46px;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 15px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
 
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  overflow: hidden;
+.navbar__search:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(108, 76, 241, 0.1);
 }
 
 .navbar__search input {
+  flex: 1;
   width: 100%;
+  min-width: 0;
   height: 100%;
-  padding: 0 14px;
-
+  padding: 0 12px;
   border: none;
   outline: none;
-
-  color: #171717;
+  border-radius: 11px;
   background: transparent;
+  color: var(--color-text);
   font-size: 0.9rem;
 }
 
 .navbar__search input::placeholder {
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 
-.navbar__search button {
-  width: 46px;
-  height: 100%;
-
-  display: grid;
-  place-items: center;
-
+.navbar__search input:focus {
   border: none;
-  background: transparent;
-  color: #555555;
-  font-size: 1rem;
+  box-shadow: none;
 }
 
-.navbar__search button:hover {
-  color: #111111;
-  background: #f3f4f6;
+/* Browser search clear button */
+
+.navbar__search input::-webkit-search-cancel-button {
+  cursor: pointer;
 }
 
-.navbar__desktop-nav {
-  flex-shrink: 0;
+/* Search icon button */
 
+.navbar__search-button {
   display: flex;
   align-items: center;
-  gap: 18px;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 11px;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
-.navbar__write,
-.navbar__login {
-  font-size: 0.95rem;
+.navbar__search-button:hover {
+  background: var(--color-primary-dark);
+  box-shadow: 0 3px 10px rgba(108, 76, 241, 0.25);
+}
+
+.navbar__search-button:active {
+  transform: scale(0.94);
+}
+
+.navbar__search-button svg {
+  display: block;
+}
+
+/* ========================================
+   Desktop Navigation
+======================================== */
+
+.navbar__desktop-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.navbar__desktop-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 15px;
+  border-radius: 12px;
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
   font-weight: 600;
+  white-space: nowrap;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
 }
 
-.navbar__write:hover,
-.navbar__login:hover {
-  opacity: 0.7;
+.navbar__desktop-nav a:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
 }
+
+/* ========================================
+   Write Button
+======================================== */
+
+.navbar__write {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 5px 14px rgba(108, 76, 241, 0.2);
+  transition:
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.navbar__write:hover {
+  background: var(--color-primary-dark);
+  box-shadow: 0 8px 20px rgba(108, 76, 241, 0.28);
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   Login Button
+======================================== */
+
+.navbar__login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 14px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.92rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.navbar__login:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+/* ========================================
+   Mobile Menu Button
+======================================== */
 
 .navbar__menu-button {
-  width: 40px;
-  height: 40px;
-
-  display: grid;
-  place-items: center;
-
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 9px;
-
-  background: transparent;
-  color: #ffffff;
-
-  font-size: 1.2rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: 13px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 1.3rem;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .navbar__menu-button:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
 }
 
-@media (max-width: 700px) {
-  .navbar__container {
-    min-height: 64px;
-    width: min(100% - 24px, 1120px);
-    gap: 12px;
-  }
+/* ========================================
+   Tablet
+======================================== */
 
-  .navbar__brand {
-    font-size: 1.15rem;
+@media (max-width: 900px) {
+  .navbar__container {
+    gap: 18px;
   }
 
   .navbar__search {
-    max-width: 220px;
-    height: 38px;
+    max-width: 260px;
   }
 
   .navbar__desktop-nav {
-    gap: 10px;
+    gap: 6px;
+  }
+
+  .navbar__desktop-nav a {
+    padding-inline: 10px;
   }
 
   .navbar__write,
   .navbar__login {
-    display: none;
+    padding-inline: 14px;
   }
 }
 
-@media (max-width: 480px) {
+/* ========================================
+   Mobile
+======================================== */
+
+@media (max-width: 700px) {
+  .navbar__container {
+    width: calc(100% - 28px);
+    min-height: 68px;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-block: 10px;
+  }
+
+  .navbar__brand {
+    font-size: 1.35rem;
+  }
+
+  .navbar__brand img {
+    width: 32px;
+    height: 32px;
+  }
+
   .navbar__search {
-    max-width: 150px;
+    order: 3;
+    flex: 1 0 100%;
+    max-width: none;
+  }
+
+  .navbar__desktop-nav {
+    gap: 6px;
+  }
+
+  .navbar__desktop-nav a {
+    min-height: 38px;
+    padding-inline: 10px;
+    font-size: 0.85rem;
+  }
+
+  .navbar__write,
+  .navbar__login {
+    min-height: 38px;
+    padding-inline: 12px;
+    border-radius: 11px;
+    font-size: 0.85rem;
+  }
+
+  .navbar__menu-button {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* ========================================
+   Small Mobile
+======================================== */
+
+@media (max-width: 420px) {
+  .navbar__container {
+    width: calc(100% - 20px);
+    gap: 8px;
+  }
+
+  .navbar__brand {
+    font-size: 1.2rem;
+    letter-spacing: -0.7px;
+  }
+
+  .navbar__brand img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .navbar__desktop-nav {
+    gap: 4px;
+  }
+
+  .navbar__desktop-nav a {
+    padding-inline: 8px;
+    font-size: 0.8rem;
+  }
+
+  .navbar__write,
+  .navbar__login {
+    padding-inline: 10px;
+    font-size: 0.8rem;
   }
 }
